@@ -3,9 +3,21 @@ package main
 import (
 	"fmt"
 	"net"
+	"os"
+	"strings"
 )
 
 func main() {
+	if len(os.Args) < 2 {
+		fmt.Println("Usage:")
+		fmt.Println("  client PING")
+		fmt.Println("  client SET key value")
+		fmt.Println("  client GET key")
+		return
+	}
+
+	args := os.Args[1:]
+
 	connection, err := net.Dial("tcp", "127.0.0.1:6379")
 	if err != nil {
 		panic(err)
@@ -14,8 +26,17 @@ func main() {
 
 	fmt.Println("Connected to a server")
 
-	sendCommand(connection, []string{"PING"})
-	resp, _ := readResponse(connection)
+	err = sendCommand(connection, args)
+	if err != nil {
+		fmt.Println("Send error", err)
+		return
+	}
+
+	resp, err := readResponse(connection)
+	if err != nil {
+		fmt.Println("Read error:", err)
+		return
+	}
 
 	fmt.Println("Parsed:", parseResponse(resp))
 }
@@ -52,6 +73,12 @@ func parseResponse(resp string) string {
 		return resp[1 : len(resp)-2]
 	case '-':
 		return "ERR: " + resp[1:len(resp)-2]
+	case '$':
+		lines := strings.Split(resp, "\r\n")
+		if len(lines) >= 2 {
+			return lines[1]
+		}
+		return ""
 	default:
 		return resp
 	}
