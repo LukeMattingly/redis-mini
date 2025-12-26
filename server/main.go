@@ -23,7 +23,6 @@ func main() {
 	}
 
 	defer conn.Close()
-
 	for {
 		resp := NewResp(conn)
 		value, err := resp.Read()
@@ -31,10 +30,11 @@ func main() {
 			fmt.Println(err)
 			return
 		}
-
 		fmt.Println(value)
 
-		// ignore request and send back a PONG
-		conn.Write([]byte("+OK\r\n"))
+		_ = value
+
+		writer := NewWriter(conn)
+		writer.Write(Value{typ: "string", str: "OK"})
 	}
 }
