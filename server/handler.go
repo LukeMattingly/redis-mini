@@ -1,7 +1,10 @@
 package main
 
 func ping(args []Value) Value {
-	return Value{Type: TypeSimpleString, Str: "PONG"}
+	if len(args) == 0 {
+		return Value{Type: TypeSimpleString, Str: "PONG"}
+	}
+	return Value{Type: TypeSimpleString, Str: args[0].Bulk}
 }
 
 var Handlers = map[string]func([]Value) Value{

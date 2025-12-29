@@ -38,7 +38,7 @@ func main() {
 		return
 	}
 
-	fmt.Println("Parsed:", parseResponse(resp))
+	fmt.Println("Response:", parseResponse(resp))
 }
 
 func encodeCommand(args []string) []byte {
